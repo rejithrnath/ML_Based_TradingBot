@@ -425,7 +425,7 @@ def trader_stream_func():
         trader.position = 0    
 
     
-trader_stream_func()
+# trader_stream_func()
 try:
     
     for x in trading_time:
