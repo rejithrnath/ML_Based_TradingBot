@@ -263,6 +263,7 @@ class DNNTrader(tpqoa.tpqoa):
         self.tp = [0]
         self.tp_cum = 0
         self.profits = []
+        self.stop_stream = None
         
         #*****************add strategy-specific attributes here******************
         self.window = window
@@ -302,7 +303,7 @@ class DNNTrader(tpqoa.tpqoa):
             self.define_strategy()
             self.execute_trades()
             
-        if int(datetime.now().hour) > 17 :
+        if int(datetime.now().hour) >= 22 :
             print('Stopped!')
             self.stop_stream = True
             
@@ -407,14 +408,15 @@ class DNNTrader(tpqoa.tpqoa):
         out += 80 * '=' + '\n'
         print(out)
 
-trader = DNNTrader(oanda_API, symbol, bar_length = "1min",
-                   window = window, lags = lags, model = model, mu = mu, std = std, units = 10000)
 
-# trader.stream_data(trader.instrument)
-trading_time = ["07"]
 
 
 def trader_stream_func():
+    trader = DNNTrader(oanda_API, symbol, bar_length = "1min",
+                   window = window, lags = lags, model = model, mu = mu, std = std, units = 10000)
+
+    # trader.stream_data(trader.instrument)
+    
     trader.get_most_recent()
     trader.stream_data(trader.instrument)
     print('Exited')
@@ -424,17 +426,17 @@ def trader_stream_func():
         trader.report_trade(close_order, "GOING NEUTRAL")
         trader.position = 0    
 
-    
+trading_time = ["08"]    
 # trader_stream_func()
 try:
     
     for x in trading_time:
-        schedule.every().monday.at(str(x)+"00").do(trader_stream_func)
-        schedule.every().tuesday.at(str(x)+"00").do(trader_stream_func)
-        schedule.every().wednesday.at(str(x)+"00").do(trader_stream_func)
-        schedule.every().thursday.at(str(x)+"00").do(trader_stream_func)
-        schedule.every().friday.at(str(x)+"00").do(trader_stream_func)
-
+        schedule.every().monday.at(str(x)+":00").do(trader_stream_func)
+        schedule.every().tuesday.at(str(x)+":00").do(trader_stream_func)
+        schedule.every().wednesday.at(str(x)+":00").do(trader_stream_func)
+        schedule.every().thursday.at(str(x)+":00").do(trader_stream_func)
+        schedule.every().friday.at(str(x)+":00").do(trader_stream_func)
+        
 except Exception:
         pass
        
